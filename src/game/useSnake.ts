@@ -137,6 +137,7 @@ export interface SnakeAPI {
   readonly start: () => void
   readonly setDirection: (dir: Direction) => void
   readonly restart: () => void
+  readonly togglePause: () => void
 }
 
 export function useSnake(
@@ -291,6 +292,18 @@ export function useSnake(
     stateRef.current = { ...stateRef.current, nextDirection: dir }
   }, [start])
 
+  const togglePause = useCallback(() => {
+    const state = stateRef.current
+    if (state.phase === 'playing') {
+      stateRef.current = { ...state, phase: 'paused' }
+      onPhaseChange?.('paused')
+    } else if (state.phase === 'paused') {
+      stateRef.current = { ...state, phase: 'playing' }
+      lastTickRef.current = performance.now()
+      onPhaseChange?.('playing')
+    }
+  }, [onPhaseChange])
+
   const restart = useCallback(() => {
     stateRef.current = {
       ...createInitialState(),
@@ -305,5 +318,5 @@ export function useSnake(
     return () => cancelAnimationFrame(animFrameRef.current)
   }, [loop])
 
-  return { state: stateRef, frame: frameRef, start, setDirection, restart }
+  return { state: stateRef, frame: frameRef, start, setDirection, restart, togglePause }
 }

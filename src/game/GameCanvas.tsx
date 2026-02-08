@@ -12,19 +12,21 @@ interface Props {
 export interface GameCanvasHandle {
   readonly setDirection: (dir: Direction) => void
   readonly restart: () => void
+  readonly togglePause: () => void
   readonly getPhase: () => string
 }
 
 const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhaseChange }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { state, frame, setDirection, restart } = useSnake(onScoreChange, onPhaseChange)
+  const { state, frame, setDirection, restart, togglePause } = useSnake(onScoreChange, onPhaseChange)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
   useImperativeHandle(ref, () => ({
     setDirection,
     restart,
+    togglePause,
     getPhase: () => state.current.phase,
-  }), [setDirection, restart, state])
+  }), [setDirection, restart, togglePause, state])
 
   // Draw loop
   useEffect(() => {
@@ -54,7 +56,17 @@ const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhase
       if (dir) {
         e.preventDefault()
         setDirection(dir)
-      } else if (e.key === ' ' || e.key === 'Enter') {
+      } else if (e.key === ' ') {
+        e.preventDefault()
+        const phase = state.current.phase
+        if (phase === 'playing' || phase === 'paused') {
+          togglePause()
+        } else if (phase === 'dead') {
+          restart()
+        } else if (phase === 'idle') {
+          setDirection('right')
+        }
+      } else if (e.key === 'Enter') {
         e.preventDefault()
         if (state.current.phase === 'dead') restart()
         else if (state.current.phase === 'idle') setDirection('right')
@@ -62,7 +74,7 @@ const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhase
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [setDirection, restart, state])
+  }, [setDirection, restart, togglePause, state])
 
   // Touch controls (swipe on canvas)
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -83,6 +95,7 @@ const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhase
     if (absDx < 15 && absDy < 15) {
       if (state.current.phase === 'dead') restart()
       else if (state.current.phase === 'idle') setDirection('right')
+      else if (state.current.phase === 'playing' || state.current.phase === 'paused') togglePause()
       return
     }
 
@@ -93,7 +106,7 @@ const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhase
       dir = dy > 0 ? 'down' : 'up'
     }
     setDirection(dir)
-  }, [setDirection, restart, state])
+  }, [setDirection, restart, togglePause, state])
 
   return (
     <canvas

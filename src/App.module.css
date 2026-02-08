@@ -2,71 +2,145 @@
 
 .container {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  overflow: hidden;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  overflow-x: hidden;
+  padding: 12px 0;
 }
 
 .gameArea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  max-width: 420px;
-  padding: 12px;
+  max-width: 440px;
+  padding: 20px 16px;
+  background: rgba(26, 26, 46, 0.8);
+  border-radius: 24px;
+  border: 1px solid rgba(0, 210, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
 }
 
-/* ── Header ── */
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 400px;
-  padding: 0 4px;
-}
+/* ── Title ── */
 
 .title {
   font-family: 'Segoe UI', sans-serif;
   font-size: 1.6rem;
   font-weight: 900;
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  color: #00d4ff;
+  text-shadow: 0 0 20px rgba(0, 210, 255, 0.5), 0 0 40px rgba(0, 210, 255, 0.2);
   margin: 0;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.wiggle {
+  display: inline-block;
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+}
+
+.subtitle {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: -4px 0 4px;
+  letter-spacing: 1px;
+}
+
+/* ── Score Board ── */
+
+.scoreBoard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .scoreCard {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(10px);
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  gap: 2px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 10px 20px;
+  border-radius: 14px;
+  min-width: 100px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.scoreCard:hover {
+  transform: translateY(-2px);
 }
 
 .bestCard {
-  background: rgba(255,193,7,0.3);
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
 }
 
-.scoreIcon {
-  font-size: 1rem;
+.scoreLabel {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .scoreNum {
   font-family: 'Segoe UI', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: 900;
   color: #fff;
-  min-width: 24px;
-  text-align: center;
+}
+
+.bestNum {
+  color: #ffd700;
+}
+
+/* ── Status Indicator ── */
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4444;
+  animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px #ff4444; }
+  50% { opacity: 0.4; box-shadow: 0 0 8px #ff4444; }
+}
+
+.statusText {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ── Canvas ── */
@@ -78,7 +152,8 @@
   aspect-ratio: 1 / 1;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(0, 210, 255, 0.2);
 }
 
 /* ── Overlays ── */
@@ -92,7 +167,8 @@
   justify-content: center;
   z-index: 10;
   pointer-events: none;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   border-radius: 12px;
 }
 
@@ -109,20 +185,20 @@
   font-family: 'Segoe UI', sans-serif;
   font-size: 2rem;
   font-weight: 900;
-  color: #fff;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  color: #00f2fe;
+  text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
 }
 
 .startSub {
   font-family: 'Segoe UI', sans-serif;
   font-size: 0.9rem;
-  color: #e0e0e0;
+  color: #b0b0c0;
 }
 
 .startHint {
   font-family: 'Segoe UI', sans-serif;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.4);
   margin-top: 4px;
 }
 
@@ -130,9 +206,10 @@
   font-family: 'Segoe UI', sans-serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: #00f2fe;
   margin-top: 16px;
   animation: blink 1.2s ease infinite;
+  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
 }
 
 @keyframes blink {
@@ -140,32 +217,44 @@
   50% { opacity: 0.3; }
 }
 
-/* ── Game Over ── */
+/* ── Game Over Modal ── */
 
-.gameOverPanel {
-  background: white;
+.gameOverModal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 20px;
   padding: 28px 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  animation: popIn 0.3s ease both;
-  min-width: 250px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: slideUp 0.4s ease both;
+  min-width: 260px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(0, 210, 255, 0.25);
   pointer-events: auto;
 }
 
-@keyframes popIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes slideUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.skullIcon {
+  font-size: 2.5rem;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .gameOverTitle {
   font-family: 'Segoe UI', sans-serif;
   font-size: 1.6rem;
   font-weight: 900;
-  color: #333;
+  color: #ff6b6b;
+  text-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
 }
 
 .finalScore {
@@ -178,28 +267,38 @@
 .finalLabel {
   font-family: 'Segoe UI', sans-serif;
   font-size: 0.85rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .finalValue {
   font-family: 'Segoe UI', sans-serif;
   font-size: 2.5rem;
   font-weight: 900;
-  color: #333;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .newBest {
   font-family: 'Segoe UI', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #FF5722;
-  animation: blink 0.6s ease infinite;
+  color: #ff6b6b;
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(245, 87, 108, 0.3);
+  animation: glowPulse 1s ease infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(245, 87, 108, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(245, 87, 108, 0.5); }
 }
 
 .divider {
   width: 100%;
   height: 1px;
-  background: #eee;
+  background: rgba(255, 255, 255, 0.1);
   margin: 4px 0;
 }
 
@@ -209,31 +308,80 @@
   width: 100%;
   font-family: 'Segoe UI', sans-serif;
   font-size: 0.85rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .bestValue {
   font-weight: 800;
-  color: #FFC107;
+  color: #ffd700;
 }
 
-.restartBtn {
+.restartModalBtn {
   margin-top: 8px;
-  padding: 14px 40px;
+  padding: 14px 30px;
   font-family: 'Segoe UI', sans-serif;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.15s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
 }
 
-.restartBtn:active {
+.restartModalBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+}
+
+.restartModalBtn:active {
   transform: scale(0.94);
+}
+
+/* ── Control Buttons ── */
+
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.controlBtn {
+  padding: 12px 28px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.controlBtn:hover {
+  transform: translateY(-2px);
+}
+
+.controlBtn:active {
+  transform: scale(0.94);
+}
+
+.startBtn {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+}
+
+.restartBtn {
+  background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+  box-shadow: 0 4px 15px rgba(252, 74, 26, 0.3);
+}
+
+.pauseBtn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
 }
 
 /* ── D-pad ── */
@@ -256,22 +404,23 @@
   font-size: 1.2rem;
   border: none;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 210, 255, 0.15);
   backdrop-filter: blur(10px);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #00d4ff;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   transition: background 0.1s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 210, 255, 0.15);
 }
 
 .dpadBtn:active {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 210, 255, 0.35);
   transform: scale(0.92);
 }
 
@@ -280,16 +429,49 @@
 .dpadLeft { grid-area: left; }
 .dpadRight { grid-area: right; }
 
+/* ── Instructions ── */
+
+.instructions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  width: 100%;
+  max-width: 400px;
+}
+
+.instructions p {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ── Footer ── */
+
+.footer {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+  margin-top: 4px;
+}
+
 /* ── Responsive ── */
 
-@media (max-width: 420px) {
+@media (max-width: 440px) {
   .gameArea {
-    padding: 8px;
+    padding: 12px 8px;
     gap: 8px;
+    border-radius: 16px;
+    margin: 0 4px;
   }
 
   .canvasWrap {
-    max-width: calc(100vw - 16px);
+    max-width: calc(100vw - 32px);
   }
 
   .dpad {
@@ -298,6 +480,15 @@
   }
 
   .title {
+    font-size: 1.3rem;
+  }
+
+  .scoreCard {
+    padding: 8px 14px;
+    min-width: 85px;
+  }
+
+  .scoreNum {
     font-size: 1.2rem;
   }
 }
@@ -308,5 +499,9 @@
     grid-template-rows: 40px 40px 40px;
     gap: 2px;
     margin-top: 2px;
+  }
+
+  .instructions {
+    padding: 8px 12px;
   }
 }

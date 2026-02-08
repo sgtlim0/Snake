@@ -30,7 +30,7 @@ export interface GameState {
   readonly food: Food
   readonly score: number
   readonly bestScore: number
-  readonly phase: 'idle' | 'playing' | 'dead'
+  readonly phase: 'idle' | 'playing' | 'paused' | 'dead'
   readonly speed: number
   readonly particles: readonly Particle[]
   readonly gridFlash: Position | null
