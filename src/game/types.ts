@@ -36,6 +36,8 @@ export interface GameState {
   readonly gridFlash: Position | null
   readonly combo: number
   readonly lastFoodTime: number
+  readonly shake: number
+  readonly eatScale: number
 }
 
 export const GRID_SIZE = 20
@@ -43,6 +45,6 @@ export const COLS = 20
 export const ROWS = 20
 export const CANVAS_WIDTH = GRID_SIZE * COLS
 export const CANVAS_HEIGHT = GRID_SIZE * ROWS
-export const BASE_SPEED = 150
-export const MIN_SPEED = 70
-export const SPEED_INCREMENT = 3
+export const BASE_SPEED = 140
+export const MIN_SPEED = 65
+export const SPEED_INCREMENT = 2

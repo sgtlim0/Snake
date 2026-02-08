@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { useSnake } from './useSnake.ts'
 import { render } from './renderer.ts'
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './types.ts'
@@ -9,10 +9,22 @@ interface Props {
   readonly onPhaseChange?: (phase: string) => void
 }
 
-export default function GameCanvas({ onScoreChange, onPhaseChange }: Props) {
+export interface GameCanvasHandle {
+  readonly setDirection: (dir: Direction) => void
+  readonly restart: () => void
+  readonly getPhase: () => string
+}
+
+const GameCanvas = forwardRef<GameCanvasHandle, Props>(({ onScoreChange, onPhaseChange }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { state, frame, setDirection, restart } = useSnake(onScoreChange, onPhaseChange)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  useImperativeHandle(ref, () => ({
+    setDirection,
+    restart,
+    getPhase: () => state.current.phase,
+  }), [setDirection, restart, state])
 
   // Draw loop
   useEffect(() => {
@@ -52,7 +64,7 @@ export default function GameCanvas({ onScoreChange, onPhaseChange }: Props) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [setDirection, restart, state])
 
-  // Touch controls (swipe)
+  // Touch controls (swipe on canvas)
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0]
     touchStartRef.current = { x: touch.clientX, y: touch.clientY }
@@ -68,9 +80,7 @@ export default function GameCanvas({ onScoreChange, onPhaseChange }: Props) {
     const absDx = Math.abs(dx)
     const absDy = Math.abs(dy)
 
-    // Minimum swipe distance
     if (absDx < 15 && absDy < 15) {
-      // Tap - start game or restart
       if (state.current.phase === 'dead') restart()
       else if (state.current.phase === 'idle') setDirection('right')
       return
@@ -101,7 +111,11 @@ export default function GameCanvas({ onScoreChange, onPhaseChange }: Props) {
         height: '100%',
         display: 'block',
         touchAction: 'none',
+        borderRadius: '12px',
       }}
     />
   )
-}
+})
+
+GameCanvas.displayName = 'GameCanvas'
+export default GameCanvas

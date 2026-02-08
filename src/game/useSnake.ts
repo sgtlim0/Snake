@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect } from 'react'
 import type { GameState, Direction, Position, Food, Particle, FoodKind } from './types.ts'
 import { COLS, ROWS, GRID_SIZE, BASE_SPEED, MIN_SPEED, SPEED_INCREMENT } from './types.ts'
-import { playEat, playGolden, playSpeedFood, playDie, playMove } from './sound.ts'
+import { playEat, playGolden, playSpeedFood, playDie, playTurn } from './sound.ts'
 
 const BEST_SCORE_KEY = 'snake-best-score'
 const COMBO_TIMEOUT = 3000
@@ -45,9 +45,13 @@ function moveHead(head: Position, dir: Direction): Position {
   const dx: Record<Direction, number> = { left: -1, right: 1, up: 0, down: 0 }
   const dy: Record<Direction, number> = { left: 0, right: 0, up: -1, down: 1 }
   return {
-    x: (head.x + dx[dir] + COLS) % COLS,
-    y: (head.y + dy[dir] + ROWS) % ROWS,
+    x: head.x + dx[dir],
+    y: head.y + dy[dir],
   }
+}
+
+function checkWallCollision(head: Position): boolean {
+  return head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS
 }
 
 function checkSelfCollision(head: Position, body: readonly Position[]): boolean {
@@ -61,15 +65,15 @@ function createEatParticles(pos: Position, kind: FoodKind): Particle[] {
     speed: ['#64B5F6', '#42A5F5', '#90CAF9', '#fff'],
   }
   const colors = colorMap[kind]
-  return Array.from({ length: 10 }, () => ({
+  return Array.from({ length: 12 }, () => ({
     x: pos.x * GRID_SIZE + GRID_SIZE / 2,
     y: pos.y * GRID_SIZE + GRID_SIZE / 2,
-    vx: (Math.random() - 0.5) * 6,
-    vy: (Math.random() - 0.5) * 6,
+    vx: (Math.random() - 0.5) * 7,
+    vy: (Math.random() - 0.5) * 7,
     life: 1,
     maxLife: 1,
     color: colors[Math.floor(Math.random() * colors.length)],
-    size: 2 + Math.random() * 4,
+    size: 2 + Math.random() * 5,
   }))
 }
 
@@ -79,12 +83,12 @@ function createDeathParticles(snake: readonly Position[]): Particle[] {
     particles.push(...Array.from({ length: 3 }, () => ({
       x: seg.x * GRID_SIZE + GRID_SIZE / 2,
       y: seg.y * GRID_SIZE + GRID_SIZE / 2,
-      vx: (Math.random() - 0.5) * 5,
-      vy: (Math.random() - 0.5) * 5,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
       life: 1,
       maxLife: 1,
-      color: ['#2ecc71', '#27ae60', '#fff'][Math.floor(Math.random() * 3)],
-      size: 2 + Math.random() * 4,
+      color: ['#4CAF50', '#8BC34A', '#fff', '#FF5252'][Math.floor(Math.random() * 4)],
+      size: 2 + Math.random() * 5,
     })))
   }
   return particles
@@ -96,8 +100,8 @@ function updateParticles(particles: readonly Particle[]): Particle[] {
       ...p,
       x: p.x + p.vx,
       y: p.y + p.vy,
-      vy: p.vy + 0.1,
-      life: p.life - 0.03,
+      vy: p.vy + 0.12,
+      life: p.life - 0.025,
     }))
     .filter(p => p.life > 0)
 }
@@ -122,6 +126,8 @@ function createInitialState(): GameState {
     gridFlash: null,
     combo: 0,
     lastFoodTime: 0,
+    shake: 0,
+    eatScale: 0,
   }
 }
 
@@ -140,7 +146,6 @@ export function useSnake(
   const stateRef = useRef<GameState>(createInitialState())
   const frameRef = useRef(0)
   const animFrameRef = useRef(0)
-  const gameLoopRef = useRef(0)
   const lastTickRef = useRef(0)
 
   const tick = useCallback(() => {
@@ -155,8 +160,8 @@ export function useSnake(
     const head = state.snake[0]
     const newHead = moveHead(head, dir)
 
-    // Self collision
-    if (checkSelfCollision(newHead, state.snake)) {
+    // Wall or self collision → death
+    if (checkWallCollision(newHead) || checkSelfCollision(newHead, state.snake)) {
       playDie()
       const best = Math.max(state.score, state.bestScore)
       saveBestScore(best)
@@ -167,6 +172,7 @@ export function useSnake(
         bestScore: best,
         particles: deathParticles,
         direction: dir,
+        shake: 1,
       }
       onScoreChange?.(state.score, best)
       onPhaseChange?.('dead')
@@ -186,9 +192,10 @@ export function useSnake(
     let newLastFoodTime = state.lastFoodTime
     let newFood = state.food
     let gridFlash: Position | null = null
+    let shake = Math.max(state.shake - 0.08, 0)
+    let eatScale = Math.max(state.eatScale - 0.1, 0)
 
     if (ateFood) {
-      // Combo
       const timeSince = now - state.lastFoodTime
       if (state.lastFoodTime > 0 && timeSince < COMBO_TIMEOUT) {
         newCombo = state.combo + 1
@@ -203,6 +210,7 @@ export function useSnake(
 
       if (state.food.kind === 'golden') {
         playGolden()
+        shake = 0.5
       } else if (state.food.kind === 'speed') {
         playSpeedFood()
         newSpeed = Math.max(MIN_SPEED, newSpeed - SPEED_INCREMENT * 3)
@@ -214,9 +222,9 @@ export function useSnake(
       newParticles = [...newParticles, ...createEatParticles(state.food.pos, state.food.kind)]
       gridFlash = state.food.pos
       newFood = spawnFood(newSnake)
+      eatScale = 1
+      shake = Math.max(shake, 0.3)
     } else {
-      playMove()
-      // Combo decay
       if (now - state.lastFoodTime > COMBO_TIMEOUT) {
         newCombo = 0
       }
@@ -237,22 +245,26 @@ export function useSnake(
       gridFlash,
       combo: newCombo,
       lastFoodTime: newLastFoodTime,
+      shake,
+      eatScale,
     }
 
     onScoreChange?.(newScore, newBest)
   }, [onScoreChange, onPhaseChange])
 
-  // Animation frame loop (rendering + game logic)
   const loop = useCallback(() => {
     frameRef.current++
     tick()
 
-    // Update particles even when dead
-    if (stateRef.current.phase === 'dead') {
+    // Decay effects even when dead
+    const state = stateRef.current
+    if (state.phase === 'dead' || state.shake > 0 || state.eatScale > 0) {
       stateRef.current = {
-        ...stateRef.current,
-        particles: updateParticles(stateRef.current.particles),
+        ...state,
+        particles: updateParticles(state.particles),
         gridFlash: null,
+        shake: Math.max(state.shake - 0.03, 0),
+        eatScale: Math.max(state.eatScale - 0.06, 0),
       }
     }
 
@@ -273,6 +285,9 @@ export function useSnake(
     }
     if (state.phase !== 'playing' && state.phase !== 'idle') return
     if (dir === oppositeDirection(state.direction)) return
+    if (dir !== state.nextDirection) {
+      playTurn()
+    }
     stateRef.current = { ...stateRef.current, nextDirection: dir }
   }, [start])
 
@@ -287,10 +302,7 @@ export function useSnake(
 
   useEffect(() => {
     animFrameRef.current = requestAnimationFrame(loop)
-    return () => {
-      cancelAnimationFrame(animFrameRef.current)
-      if (gameLoopRef.current) clearInterval(gameLoopRef.current)
-    }
+    return () => cancelAnimationFrame(animFrameRef.current)
   }, [loop])
 
   return { state: stateRef, frame: frameRef, start, setDirection, restart }
