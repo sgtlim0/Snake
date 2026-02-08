@@ -32,20 +32,18 @@ export default function App() {
   return (
     <div className={styles.container}>
       <div className={styles.gameArea}>
-        {/* Header */}
         <div className={styles.header}>
           <div className={styles.scoreCard}>
-            <span className={styles.scoreIcon}>{'\\u{1F34E}'}</span>
+            <span className={styles.scoreIcon}>{'\uD83C\uDF4E'}</span>
             <span className={styles.scoreNum}>{score}</span>
           </div>
           <h1 className={styles.title}>SNAKE</h1>
           <div className={`${styles.scoreCard} ${styles.bestCard}`}>
-            <span className={styles.scoreIcon}>{'\\u{1F3C6}'}</span>
+            <span className={styles.scoreIcon}>{'\uD83C\uDFC6'}</span>
             <span className={styles.scoreNum}>{bestScore}</span>
           </div>
         </div>
 
-        {/* Canvas */}
         <div className={styles.canvasWrap}>
           <GameCanvas
             ref={gameRef}
@@ -56,11 +54,11 @@ export default function App() {
           {phase === 'idle' && (
             <div className={styles.overlay}>
               <div className={styles.startPanel}>
-                <div className={styles.startTitle}>{'\\u{1F40D}'} SNAKE</div>
+                <div className={styles.startTitle}>{'\uD83D\uDC0D'} SNAKE</div>
                 <div className={styles.startSub}>
-                  {bestScore > 0 ? `\\u{1F3C6} \\uCD5C\\uACE0: ${bestScore}` : '\\uC0AC\\uACFC\\uB97C \\uBA39\\uACE0 \\uBF40\\uC744 \\uD0A4\\uC6B0\\uC138\\uC694!'}
+                  {bestScore > 0 ? `\uD83C\uDFC6 \uCD5C\uACE0: ${bestScore}` : '\uC0AC\uACFC\uB97C \uBA39\uACE0 \uBF40\uC744 \uD0A4\uC6B0\uC138\uC694!'}
                 </div>
-                <div className={styles.startHint}>{'\\u2B06\\uFE0F\\u2B07\\uFE0F\\u2B05\\uFE0F\\u27A1\\uFE0F \\uBC29\\uD5A5\\uD0A4 / \\uC2A4\\uC640\\uC774\\uD504'}</div>
+                <div className={styles.startHint}>{'\u2B06\uFE0F\u2B07\uFE0F\u2B05\uFE0F\u27A1\uFE0F \uBC29\uD5A5\uD0A4 / \uC2A4\uC640\uC774\uD504'}</div>
                 <div className={styles.tapStart}>TAP TO START</div>
               </div>
             </div>
@@ -88,29 +86,28 @@ export default function App() {
           )}
         </div>
 
-        {/* D-pad */}
         {phase === 'playing' && (
           <div className={styles.dpad}>
             <button
               className={`${styles.dpadBtn} ${styles.dpadUp}`}
               onTouchStart={(e) => { e.preventDefault(); handleDpad('up') }}
               onMouseDown={() => handleDpad('up')}
-            >{'\\u25B2'}</button>
+            >{'\u25B2'}</button>
             <button
               className={`${styles.dpadBtn} ${styles.dpadLeft}`}
               onTouchStart={(e) => { e.preventDefault(); handleDpad('left') }}
               onMouseDown={() => handleDpad('left')}
-            >{'\\u25C0'}</button>
+            >{'\u25C0'}</button>
             <button
               className={`${styles.dpadBtn} ${styles.dpadRight}`}
               onTouchStart={(e) => { e.preventDefault(); handleDpad('right') }}
               onMouseDown={() => handleDpad('right')}
-            >{'\\u25B6'}</button>
+            >{'\u25B6'}</button>
             <button
               className={`${styles.dpadBtn} ${styles.dpadDown}`}
               onTouchStart={(e) => { e.preventDefault(); handleDpad('down') }}
               onMouseDown={() => handleDpad('down')}
-            >{'\\u25BC'}</button>
+            >{'\u25BC'}</button>
           </div>
         )}
       </div>
